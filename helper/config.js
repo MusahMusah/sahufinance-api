@@ -21,11 +21,18 @@ const config = {
     mail: {
         type: "smtp",
         smtp: {
-            host: "mail.sahufinance.com",
-            secure: true,
-            port: 465,
-            username: 'no-reply@sahufinance.com',
-            password: '5PBL$ERafk+@'
+            // host: "mail.sahufinance.com",
+            // secure: true,
+            // port: 465,
+            // username: 'no-reply@sahufinance.com',
+            // password: '5PBL$ERafk+@'
+            host: "smtp.mailtrap.io",
+            port: 2525,
+            // secure: true,
+            auth: {
+                user: "47a0f48f9ec8eb",
+                pass: "d68e2638147fdd"
+            }
         }
     },
     site_name: 'Cryptotrades',

@@ -30,7 +30,8 @@ var readFile = function(path, callback) {
  * This is the function which used to send email 
  */
 exports.mail = function(data, receiptant, subject, sender, callback) {
-    if (config.mail.type == "") {
+    if (!config.mail.type == "") {
+        console.log(config)
         callback(null, "success");
         return;
     }
@@ -50,22 +51,13 @@ exports.mail = function(data, receiptant, subject, sender, callback) {
             //         pass: config.mail.smtp.password // generated ethereal password
             //     }
             // });
-            // host: "mail.sahufinance.com",
-            // secure: true,
-            // port: 465,
-            // username: 'no-reply@sahufinance.com',
-            // password: '5PBL$ERafk+@'
-            let transporter = nodemailer.createTransport({
-                host: "mail.sahufinance.com",
-                port: 465,
-                secure: true,
+            var transporter = nodemailer.createTransport({
+                host: "smtp.mailtrap.io",
+                port: 2525,
                 auth: {
-                    user: "no-reply@sahufinance.com",
-                    pass: "5PBL$ERafk+@"
-                },
-                // tls: {
-                //     rejectUnauthorized: false
-                // }
+                    user: "47a0f48f9ec8eb",
+                    pass: "d68e2638147fdd"
+                }
             });
             let info = transporter.sendMail({
                 from: sender, // sender address
