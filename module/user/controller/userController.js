@@ -708,15 +708,14 @@ exports.forgot = function(req, res) {
                 .then(() => {
                     res.json({
                         status: true,
-                        token: token,
-                        message: "Registration successful",
+                        message: "Email sent. Please refer your email for new password"
                     });
 
                     return;
                 })
                 .catch((error) => {
-                    return error.response
                     console.log("email not working", error.response);
+                    return error.response
                 })
         });
     })
