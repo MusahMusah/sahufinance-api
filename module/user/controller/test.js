@@ -1,77 +1,55 @@
-/*
-Project : Cryptotrades
-FileName : mailController.js
-Author : LinkWell
-File Created : 21/07/2021
-CopyRights : LinkWell
-Purpose : This is the file which used to send email notificaiton to user
-*/
-var nodemailer = require('nodemailer');
-var handlebars = require('handlebars');
-var fs = require('fs');
-var config = require('./../../../helper/config')
-var path = require('path');
-
-/**
- *   This is the function handle html render
- */
-var readFile = function(path, callback) {
-    fs.readFile(path, { encoding: 'utf-8' }, function(err, html) {
-        if (err) {
-            throw err;
-            callback(err);
-        } else {
-            callback(null, html);
-        }
-    });
-};
-
-/**
- * This is the function which used to send email 
- */
-exports.mail = function(data, receiptant, subject, sender, callback) {
-    if (!config.mail.type == "") {
-        console.log(config)
-        callback(null, "success");
-        return;
+cp.exec(command, function(err, stdout, stderr) {
+    console.log('stderr ', stderr)
+    console.log('stdout ', stdout)
+        // handle err, stdout, stderr
+    if (err) {
+        console.log("error is ", err)
+        res.json({
+            status: false,
+            message: err.toString().split('ERROR: ').pop().replace(/\n|\r/g, "")
+        });
+        return
     }
-    var filePath = __basedir;
-    readFile(filePath + '/templates/mail/index.html', function(err, html) {
-        var template = handlebars.compile(html);
-        data.sitename = config.site_name;
-        data.maillink = config.site_link;
-        var htmlToSend = template(data);
-        try {
-            // let transporter = nodemailer.createTransport({
-            //     host: config.mail.smtp.host,
-            //     port: config.mail.smtp.port,
-            //     // secure: config.mail.smtp.secure, // true for 465, false for other ports
-            //     auth: {
-            //         user: config.mail.smtp.username, // generated ethereal user
-            //         pass: config.mail.smtp.password // generated ethereal password
-            //     }
-            // });
-            var transporter = nodemailer.createTransport({
-                host: "smtp.mailtrap.io",
-                port: 2525,
-                auth: {
-                    user: "47a0f48f9ec8eb",
-                    pass: "d68e2638147fdd"
-                }
+    var private_key = stdout.toString().split('Private key: ').pop().replace(/\n|\r/g, " ").split(' ')
+    var public_key = stdout.toString().split('Public address: ').pop().replace(/\n|\r/g, " ").split(' ')
+    console.log('private key', private_key)
+    console.log('public key', public_key)
+    user.private_key = private_key[0];
+    user.public_key = public_key[0];
+    user.save(function(err, user) {
+        if (err) {
+            res.json({
+                status: false,
+                message: "Request failed",
+                errors: err
             });
-            let info = transporter.sendMail({
-                from: sender, // sender address
-                to: receiptant, // list of receivers
-                subject: subject, // Subject line
-                html: htmlToSend // html body
-            }).then(reason => {
-                callback(null, info)
-            });
-
-        } catch (error) {
-            console.log("mail error is ", )
-            callback("mail error", '')
+            return;
         }
-
+        let token = jwt.sign({ user_id: user._id, username: user.username, email: user.email, first_name: user.first_name, last_name: user.last_name, profile_image: user.profile_image ? user.profile_image : '', status: user.status, dob: user.dob, phone: user.phone, role: user.role },
+            config.secret_key, {
+                expiresIn: '24h' // expires in 24 hours
+            }
+        );
+        if (user.email) {
+            mailer.mail({
+                username: user.first_name + ' ' + user.last_name,
+                content: "Congratulation, you have created new account in " + config.site_name
+            }, user.email, 'Registration Confirmation', config.site_email, function(error, result) {
+                if (error) {
+                    console.log("email not working");
+                }
+                res.json({
+                    status: true,
+                    token: token,
+                    message: "Registration successful",
+                });
+            })
+        } else {
+            res.json({
+                status: true,
+                token: token,
+                message: "Registration successful",
+            });
+        }
     });
-};
+});
