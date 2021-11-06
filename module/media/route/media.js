@@ -34,7 +34,7 @@ var coverupload = multer({ storage: coverstorage })
 
 var collectionlogostorage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, 'media/images/collection/logo')
+        cb(null, './media/images/collection/logo')
     },
     filename: function(req, file, cb) {
         cb(null, file.originalname)
@@ -44,7 +44,7 @@ var collectionlogoupload = multer({ storage: collectionlogostorage })
 
 var collectionbannerstorage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, 'media/images/collection/banner')
+        cb(null, './media/images/collection/banner')
     },
     filename: function(req, file, cb) {
         cb(null, file.originalname)
@@ -87,8 +87,7 @@ var categoryupload = multer({ storage: categorystorage })
 router.post('/avatar', avatarupload.single('file'), mediaController.uploadImage)
 router.post('/cover', coverupload.single('file'), mediaController.uploadImage)
 router.post('/collectionlogo', collectionlogoupload.single('file'), mediaController.uploadImage)
-    // router.post('/collectionbanner', collectionbannerupload.single('file'), mediaController.uploadImage)
-router.post('/collectionbanner', [], mediaController.uploadImage)
+router.post('/collectionbanner', collectionbannerupload.single('file'), mediaController.uploadImage)
 router.post('/itemthumb', itemthumbupload.single('file'), mediaController.uploadImage)
 router.post('/itemmedia', itemmediaupload.single('file'), mediaController.uploadImage)
 router.post('/category', categoryupload.single('file'), mediaController.uploadImage)
