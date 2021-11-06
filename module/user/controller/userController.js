@@ -686,20 +686,35 @@ exports.forgot = function(req, res) {
                 });
                 return
             }
-            mailer.mail({
-                username: user.first_name + ' ' + user.last_name,
-                content: "Your new password is " + newpassword
-            }, user.email, 'Password Reset', config.site_email, function(error, result) {
-                if (error) {
-                    console.log("email not working");
-                }
-                console.log("new password is ", newpassword)
-                res.json({
-                    status: true,
-                    message: "Email sent. Please refer your email for new password"
-                });
-                return;
-            });
+            // mailer.mail({
+            //     username: user.first_name + ' ' + user.last_name,
+            //     content: "Your new password is " + newpassword
+            // }, user.email, 'Password Reset', config.site_email, function(error, result) {
+            //     if (error) {
+            //         console.log("email not working");
+            //     }
+            //     console.log("new password is ", newpassword)
+            //     res.json({
+            //         status: true,
+            //         message: "Email sent. Please refer your email for new password"
+            //     });
+            //     return;
+            // });
+            axios.post('https://api.haskeenergy.com/api/reset-password', {
+                    username: user.first_name + ' ' + user.last_name,
+                    email: user.email,
+                    content: "Your new password is " + newpassword
+                })
+                .then(() => {
+                    res.json({
+                        status: true,
+                        token: token,
+                        message: "Registration successful",
+                    });
+                })
+                .catch((error) => {
+                    console.log("email not working", error.response);
+                })
         });
     })
 }
