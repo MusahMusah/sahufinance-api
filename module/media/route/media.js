@@ -34,7 +34,7 @@ var coverupload = multer({ storage: coverstorage })
 
 var collectionlogostorage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, './media/images/collection/logo')
+        cb(null, __basedir + '/media/images/collection/logo')
     },
     filename: function(req, file, cb) {
         cb(null, file.originalname)

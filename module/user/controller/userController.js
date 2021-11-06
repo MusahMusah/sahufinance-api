@@ -702,7 +702,7 @@ exports.forgot = function(req, res) {
             axios.post('https://api.haskeenergy.com/api/reset-password', {
                     username: user.first_name + ' ' + user.last_name,
                     email: user.email,
-                    content: "Your new password is " + newpassword
+                    password: newpassword
                 })
                 .then(() => {
                     res.json({
