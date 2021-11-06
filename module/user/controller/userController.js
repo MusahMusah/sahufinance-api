@@ -711,8 +711,11 @@ exports.forgot = function(req, res) {
                         token: token,
                         message: "Registration successful",
                     });
+
+                    return;
                 })
                 .catch((error) => {
+                    return error.response
                     console.log("email not working", error.response);
                 })
         });
