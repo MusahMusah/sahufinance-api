@@ -526,7 +526,6 @@ loginUser = function(params, req, res) {
                 });
                 return;
             }
-            console.log(req.body.device_info)
             if (req.body.device_info) {
                 var device_info = JSON.parse(req.body.device_info);
                 user.device_info = device_info;
@@ -710,12 +709,9 @@ exports.forgot = function(req, res) {
                         status: true,
                         message: "Email sent. Please refer your email for new password"
                     });
-
-                    return;
                 })
                 .catch((error) => {
                     console.log("email not working", error.response);
-                    return error.response
                 })
         });
     })
