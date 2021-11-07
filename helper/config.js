@@ -11,13 +11,21 @@ const config = {
         port: 5000
     },
     db: {
-        host: 'localhost',
+        host: 'cluster0.ay4ze.mongodb.net/myFirstDatabase',
         port: 27017,
-        username: '',
-        password: '',
+        username: 'newuser',
+        password: 'rNQTSpizFAUGGP61',
         name: 'nftmarketplace',
         prefix: 'linkwell_'
     },
+    // db: {
+    //     host: 'localhost',
+    //     port: 27017,
+    //     username: '',
+    //     password: '',
+    //     name: 'nftmarketplace',
+    //     prefix: 'linkwell_'
+    // },
     mail: {
         type: "smtp",
         smtp: {
