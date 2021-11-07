@@ -38,62 +38,41 @@ exports.add = function(req, res) {
     collection.status = 1;
     collection.author_id = req.decoded.user_id;
     userController.getUserInfoByID(req.decoded.user_id, function(err, user) {
-        // var symbol = req.body.name.replace(" ", "_")
-        // var symbolsol = symbol + '.sol';
-        // var symbolbin = symbol + '.bin';
-        // var command = 'sh create.sh ' + symbol + ' "' + req.body.name + '" ' + symbolsol + ' ' + symbolbin + ' ' + user.private_key;
-        // var address_array = stdout.toString().split('Contract address is: ').pop().replace(/\n|\r/g, " ").split(' ')
-        // var contract_address = address_array[0];
-        // collection.contract_address = contract_address
-        // collection.contract_symbol = symbol;
-        collection.save(function(err, collectionObj) {
+        var symbol = req.body.name.replace(" ", "_")
+        var symbolsol = symbol + '.sol';
+        var symbolbin = symbol + '.bin';
+        var command = 'sh create.sh ' + symbol + ' "' + req.body.name + '" ' + symbolsol + ' ' + symbolbin + ' ' + user.private_key;
+        cp.exec(command, function(err, stdout, stderr) {
+            console.log('stderr ', stderr)
+            console.log('stdout ', stdout)
+                // handle err, stdout, stderr
             if (err) {
                 res.json({
                     status: false,
-                    message: "Request failed",
-                    errors: err
+                    message: err.toString().split('ERROR: ').pop().replace(/\n|\r/g, "")
                 });
-                return;
+                return
             }
-            res.json({
-                status: true,
-                message: "Collection created successfully",
-                result: collectionObj
+            var address_array = stdout.toString().split('Contract address is: ').pop().replace(/\n|\r/g, " ").split(' ')
+            var contract_address = address_array[0];
+            collection.contract_address = contract_address
+            collection.contract_symbol = symbol;
+            collection.save(function(err, collectionObj) {
+                if (err) {
+                    res.json({
+                        status: false,
+                        message: "Request failed",
+                        errors: err
+                    });
+                    return;
+                }
+                res.json({
+                    status: true,
+                    message: "Collection created successfully",
+                    result: collectionObj
+                });
             });
-        })
-
-        // cp.exec(command, function(err, stdout, stderr) {
-        //     console.log('stderr ', stderr)
-        //     console.log('stdout ', stdout)
-        //         // handle err, stdout, stderr
-        //     if (err) {
-        //         res.json({
-        //             status: false,
-        //             message: err.toString().split('ERROR: ').pop().replace(/\n|\r/g, "")
-        //         });
-        //         return
-        //     }
-        //     var address_array = stdout.toString().split('Contract address is: ').pop().replace(/\n|\r/g, " ").split(' ')
-        //     var contract_address = address_array[0];
-        //     collection.contract_address = contract_address
-        //     collection.contract_symbol = symbol;
-        //     console.log(collection)
-        //     collection.save(function(err, collectionObj) {
-        //         if (err) {
-        //             res.json({
-        //                 status: false,
-        //                 message: "Request failed",
-        //                 errors: err
-        //             });
-        //             return;
-        //         }
-        //         res.json({
-        //             status: true,
-        //             message: "Collection created successfully",
-        //             result: collectionObj
-        //         });
-        //     });
-        // });
+        });
     })
 
 }
