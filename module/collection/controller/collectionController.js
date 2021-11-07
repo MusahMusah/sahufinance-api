@@ -42,6 +42,8 @@ exports.add = function(req, res) {
         var symbolsol = symbol + '.sol';
         var symbolbin = symbol + '.bin';
         var command = 'sh create.sh ' + symbol + ' "' + req.body.name + '" ' + symbolsol + ' ' + symbolbin + ' ' + user.private_key;
+        console.log('command ', collection)
+        console.log('command ', command)
         cp.exec(command, function(err, stdout, stderr) {
             console.log('stderr ', stderr)
             console.log('stdout ', stdout)
