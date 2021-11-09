@@ -14,11 +14,36 @@ var validator = require('validator');
 const { validationResult } = require('express-validator');
 var cp = require('child_process');
 var Web3 = require('web3');
+var axios = require('axios');
 const config = require('../../../helper/config');
 var fs = require('fs')
     /*
      * This is the function which used to add collection in database
      */
+exports.gasfee = function(req, res) {
+    const data = {
+        "jsonrpc": "2.0",
+        "method": "eth_gasPrice",
+        "params": [],
+        "id": 1
+    }
+    axios.post('https://rinkeby.infura.io/v3/552872ab900243aaa3774eeb8cc912c4', data)
+        .then((response) => {
+            const etherValue = Web3.utils.fromWei(response.data.result, 'ether');
+            res.json({
+                status: true,
+                message: "Gas fee retrieved successfully " + etherValue,
+                data: etherValue
+            });
+        })
+        .catch((err) => {
+            res.json({
+                status: false,
+                message: err,
+            });
+        })
+}
+
 exports.add = function(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -43,9 +68,8 @@ exports.add = function(req, res) {
         var symbolbin = symbol + '.bin';
         var command = 'sh create.sh ' + symbol + ' "' + req.body.name + '" ' + symbolsol + ' ' + symbolbin + ' ' + user.private_key;
         cp.exec(command, function(err, stdout, stderr) {
-            console.log('stderr ', stderr)
-            console.log('stdout ', stdout)
-                // handle err, stdout, stderr
+            // console.log('stderr ', stderr)
+            // console.log('stdout ', stdout)
             if (err) {
                 res.json({
                     status: false,

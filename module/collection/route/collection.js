@@ -15,11 +15,12 @@ var adminauth = require("./../../../middleware/adminauth");
 var optionalauth = require("./../../../middleware/optionalauth");
 const { check } = require('express-validator');
 
-router.post('/add',[check('name').not().isEmpty(),auth],collectionController.add)
-router.put('/update',[check('collection_id').not().isEmpty(),auth],collectionController.update);
-router.get('/fulllist',adminauth,collectionController.getAdminList)
-router.get('/list',optionalauth,collectionController.list)
-router.get('/detail',collectionController.view)
-router.delete('/delete',[check('collection_id').not().isEmpty(),auth],collectionController.delete)
+router.post('/add', [check('name').not().isEmpty(), auth], collectionController.add)
+router.put('/update', [check('collection_id').not().isEmpty(), auth], collectionController.update);
+router.get('/fulllist', adminauth, collectionController.getAdminList)
+router.get('/list', optionalauth, collectionController.list)
+router.get('/detail', collectionController.view)
+router.get('/fetch_gas_fee', collectionController.gasfee)
+router.delete('/delete', [check('collection_id').not().isEmpty(), auth], collectionController.delete)
 
 module.exports = router
