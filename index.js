@@ -53,7 +53,7 @@ if(!db) {
 /*
 * Below lines used to define route for the api services
 */
-app.get('/', (req, res) => res.send('Welcome to Cryptotrades API'))
+app.get('/', (req, res) => res.send('Welcome to Sahu Finance API'))
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/user', user)
 app.use('/settings', settings)
