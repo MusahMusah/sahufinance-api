@@ -154,84 +154,98 @@ exports.unpublish = function(req, res) {
         return;
     }
     items.findOne({ _id: req.body.item_id, author_id: req.decoded.user_id, status: "active" }).populate('collection_id').exec(function(err, item) {
-        console.log({ _id: req.body.item_id, author_id: req.decoded.user_id, status: "active" })
         if (err || !item) {
             res.json({
                 status: false,
                 message: "Item not found",
-                // errors: err
-                errors: JSON.stringify({ _id: req.body.item_id, author_id: req.decoded.user_id, status: "active" })
+                errors: err
             });
             return;
         }
         userController.getUserInfoByID(req.decoded.user_id, function(err, user) {
-            var symbolabi = item.collection_id.contract_symbol + '.abi';
-            var command = 'sh mint.sh ' + user.public_key + ' ' + item.collection_id.contract_address + ' ' + symbolabi + ' ' + user.private_key
-            cp.exec(command, function(err, stdout, stderr) {
-                console.log('stderr ', stderr)
-                console.log('stdout ', stdout)
-                    // handle err, stdout, stderr
+            item.status = "inactive";
+            item.save(function(err, itemObj) {
                 if (err) {
-                    console.log("error is ", err)
                     res.json({
                         status: false,
-                        message: err.toString().split('ERROR: ').pop().replace(/\n|\r/g, "")
+                        message: "Request failed",
+                        errors: err
                     });
-                    return
+                    return;
                 }
-
-                var t_array = stdout.toString().split('Transaction hash: ').pop().replace(/\n|\r/g, "").split(' ')
-                var transaction_hash = t_array[0].replace('Waiting', '')
-
-                var status_array = stdout.toString().split('Status: ').pop().replace(/\n|\r/g, " ").split(' ')
-                var status_block = status_array[0]
-                if (status_block == "Failed") {
-                    res.json({
-                        status: false,
-                        message: "Item mint failed in network",
-                        data: {
-                            transaction_hash: transaction_hash,
-                        }
-                    })
-                } else {
-                    var token_array = stdout.toString().split('"tokenId": ').pop().replace(/\n|\r/g, " ").split(' ')
-                    var token_id = token_array[0].replace('\"', '').replace('\"', '');
-                    item.token_id = token_id;
-                    item.minted_date = new Date();
-                    item.status = "inactive";
-                    item.save(function(err, itemObj) {
-                        if (err) {
-                            res.json({
-                                status: false,
-                                message: "Request failed",
-                                errors: err
-                            });
-                            return;
-                        }
-                        var history = new histories();
-                        history.item_id = item._id;
-                        history.collection_id = item.collection_id._id
-                        history.from_id = '000000000000000000000000';
-                        history.to_id = user._id
-                        history.transaction_hash = transaction_hash
-                        history.price = item.price;
-                        history.history_type = "minted";
-                        history.save(function(err, historyObj) {
-                            var price = new prices();
-                            price.item_id = item._id;
-                            price.price = item.price;
-                            price.user_id = user._id
-                            price.save(function(err, priceObj) {
-                                res.json({
-                                    status: true,
-                                    message: "Item unpublished successfully",
-                                    result: itemObj
-                                });
-                            })
-                        });
-                    });
-                }
+                res.json({
+                    status: true,
+                    message: "Item unpublished successfully",
+                    result: itemObj
+                });
             });
+            // var symbolabi = item.collection_id.contract_symbol + '.abi';
+            // var command = 'sh mint.sh ' + user.public_key + ' ' + item.collection_id.contract_address + ' ' + symbolabi + ' ' + user.private_key
+            // cp.exec(command, function(err, stdout, stderr) {
+            //     console.log('stderr ', stderr)
+            //     console.log('stdout ', stdout)
+            //         // handle err, stdout, stderr
+            //     if (err) {
+            //         console.log("error is ", err)
+            //         res.json({
+            //             status: false,
+            //             message: err.toString().split('ERROR: ').pop().replace(/\n|\r/g, "")
+            //         });
+            //         return
+            //     }
+
+            //     var t_array = stdout.toString().split('Transaction hash: ').pop().replace(/\n|\r/g, "").split(' ')
+            //     var transaction_hash = t_array[0].replace('Waiting', '')
+
+            //     var status_array = stdout.toString().split('Status: ').pop().replace(/\n|\r/g, " ").split(' ')
+            //     var status_block = status_array[0]
+            //     if (status_block == "Failed") {
+            //         res.json({
+            //             status: false,
+            //             message: "Item mint failed in network",
+            //             data: {
+            //                 transaction_hash: transaction_hash,
+            //             }
+            //         })
+            //     } else {
+            //         var token_array = stdout.toString().split('"tokenId": ').pop().replace(/\n|\r/g, " ").split(' ')
+            //         var token_id = token_array[0].replace('\"', '').replace('\"', '');
+            //         item.token_id = token_id;
+            //         item.minted_date = new Date();
+            //         item.status = "inactive";
+            //         item.save(function(err, itemObj) {
+            //             if (err) {
+            //                 res.json({
+            //                     status: false,
+            //                     message: "Request failed",
+            //                     errors: err
+            //                 });
+            //                 return;
+            //             }
+            //             var history = new histories();
+            //             history.item_id = item._id;
+            //             history.collection_id = item.collection_id._id
+            //             history.from_id = '000000000000000000000000';
+            //             history.to_id = user._id
+            //             history.transaction_hash = transaction_hash
+            //             history.price = item.price;
+            //             history.history_type = "minted";
+            //             history.save(function(err, historyObj) {
+            //                 var price = new prices();
+            //                 price.item_id = item._id;
+            //                 price.price = item.price;
+            //                 price.user_id = user._id
+            //                 price.save(function(err, priceObj) {
+            //                     res.json({
+            //                         status: true,
+            //                         message: "Item unpublished successfully",
+            //                         result: itemObj
+            //                     });
+            //                 })
+            //             });
+            //         });
+            //     }
+            // });
         });
 
     })
