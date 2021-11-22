@@ -153,7 +153,7 @@ exports.unpublish = function(req, res) {
         });
         return;
     }
-    items.findOne({ _id: req.body.item_id, author_id: req.decoded.user_id, status: "active" }).populate('collection_id').exec(function(err, item) {
+    items.findOne({ _id: req.body.item_id, author_id: req.decoded.user_id, status: "inactive" }).populate('collection_id').exec(function(err, item) {
         if (err || !item) {
             res.json({
                 status: false,
