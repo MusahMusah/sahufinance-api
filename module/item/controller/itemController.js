@@ -159,7 +159,8 @@ exports.unpublish = function(req, res) {
             res.json({
                 status: false,
                 message: "Item not found",
-                errors: err
+                // errors: err
+                errors: JSON.stringify({ _id: req.body.item_id, author_id: req.decoded.user_id, status: "active" })
             });
             return;
         }
